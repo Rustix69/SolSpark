@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Wallet, Send, Loader } from 'lucide-react';
+import { Wallet, Send, Loader, Check } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Hero = () => {
@@ -12,6 +12,7 @@ const Hero = () => {
   const [amount, setAmount] = useState('');
   const [network, setNetwork] = useState('testnet');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const starsContainerRef = useRef<HTMLDivElement>(null);
 
   const connectWallet = () => {
@@ -34,12 +35,19 @@ const Hero = () => {
     }
 
     setIsLoading(true);
+    setIsSuccess(false);
 
     // Simulating transaction
     setTimeout(() => {
       setIsLoading(false);
+      setIsSuccess(true);
       toast.success(`${amount} SOL sent successfully on ${network}`);
-      setAmount('');
+      
+      // Reset success state after 3 seconds
+      setTimeout(() => {
+        setIsSuccess(false);
+        setAmount('');
+      }, 3000);
     }, 2000);
   };
 
@@ -136,12 +144,23 @@ const Hero = () => {
                     placeholder="0.0"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="bg-sol-dark border-sol-dark-border text-sol-light py-6 px-4 text-xl"
+                    className={`bg-sol-dark border-sol-dark-border text-sol-light py-6 px-4 text-xl ${isSuccess ? 'border-sol-green' : ''}`}
+                    disabled={isSuccess}
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sol-muted">
                     SOL
                   </div>
+                  {isSuccess && (
+                    <div className="absolute right-12 top-1/2 -translate-y-1/2 bg-sol-green text-white rounded-full p-0.5">
+                      <Check className="h-4 w-4" />
+                    </div>
+                  )}
                 </div>
+                {isSuccess && (
+                  <p className="text-sol-green text-sm mt-2 flex items-center">
+                    <Check className="h-3 w-3 mr-1" /> Your SOL has been sent successfully!
+                  </p>
+                )}
               </div>
 
               <div className="mb-6">
@@ -153,11 +172,11 @@ const Hero = () => {
                   className="flex justify-between"
                 >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="testnet" id="testnet" className="border-sol-dark-border" />
+                    <RadioGroupItem value="testnet" id="testnet" className="border-sol-dark-border" disabled={isSuccess} />
                     <Label htmlFor="testnet" className="cursor-pointer">Testnet</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="devnet" id="devnet" className="border-sol-dark-border" />
+                    <RadioGroupItem value="devnet" id="devnet" className="border-sol-dark-border" disabled={isSuccess} />
                     <Label htmlFor="devnet" className="cursor-pointer">Devnet</Label>
                   </div>
                 </RadioGroup>
@@ -165,13 +184,22 @@ const Hero = () => {
 
               <Button 
                 type="submit" 
-                disabled={isLoading} 
-                className="w-full py-6 text-lg bg-gradient-to-r from-sol-green to-sol-green/80 hover:from-sol-green-hover hover:to-sol-green border-0 shadow-[0_4px_20px_-4px_rgba(22,163,74,0.5)]"
+                disabled={isLoading || isSuccess} 
+                className={`w-full py-6 text-lg border-0 shadow-[0_4px_20px_-4px_rgba(22,163,74,0.5)] ${
+                  isSuccess 
+                    ? 'bg-gradient-to-r from-sol-green to-sol-green/80 hover:from-sol-green hover:to-sol-green'
+                    : 'bg-gradient-to-r from-sol-green to-sol-green/80 hover:from-sol-green-hover hover:to-sol-green'
+                }`}
               >
                 {isLoading ? (
                   <>
                     <Loader className="mr-2 h-5 w-5 animate-spin" />
                     Processing...
+                  </>
+                ) : isSuccess ? (
+                  <>
+                    <Check className="mr-2 h-5 w-5" />
+                    Send
                   </>
                 ) : (
                   <>
@@ -189,4 +217,3 @@ const Hero = () => {
 };
 
 export default Hero;
-
