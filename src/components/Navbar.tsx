@@ -10,7 +10,7 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 py-4 px-6 md:px-12 bg-gradient-to-b from-sol-dark to-transparent">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <a href="/" className="text-xl font-bold text-sol-light">
-          SolDrop DAPP
+          SolSpark
         </a>
         
         <div className="hidden md:flex items-center space-x-8">
