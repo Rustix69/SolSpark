@@ -19,10 +19,10 @@ const StatCard = ({ title, value, change, icon }: { title: string; value: string
   const isPositive = !change.includes('-');
   
   return (
-    <div className="stats-card">
+    <div className="stats-card bg-gradient-to-br from-sol-dark-card/80 to-sol-dark-card backdrop-blur-md border border-sol-green/10 shadow-[0_4px_15px_-3px_rgba(22,163,74,0.15)]">
       <div className="flex justify-between items-start mb-4">
         <h3 className="text-sol-muted text-sm font-medium">{title}</h3>
-        <span className="text-sol-muted">{icon}</span>
+        <span className="text-sol-green">{icon}</span>
       </div>
       <p className="text-4xl font-bold text-sol-light mb-1">{value}</p>
       <p className={`text-xs ${isPositive ? 'text-sol-green' : 'text-red-500'}`}>
@@ -35,10 +35,10 @@ const StatCard = ({ title, value, change, icon }: { title: string; value: string
 const Dashboard = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 -mt-10 mb-24">
-      <div className="bg-sol-dark-card border border-sol-dark-border rounded-lg overflow-hidden p-6 md:p-8">
+      <div className="bg-gradient-to-b from-sol-dark-card/95 to-sol-dark-card/80 backdrop-blur-xl border border-sol-green/10 rounded-lg overflow-hidden p-6 md:p-8 shadow-[0_10px_30px_-5px_rgba(22,163,74,0.1)]">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h2 className="text-2xl font-bold">SOL Transaction Overview</h2>
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-white to-green-200/80 bg-clip-text text-transparent">SOL Transaction Overview</h2>
             <p className="text-sol-muted text-sm">Real-time monitoring dashboard</p>
           </div>
         </div>
@@ -64,7 +64,7 @@ const Dashboard = () => {
           />
         </div>
 
-        <div className="h-64">
+        <div className="h-64 relative rounded-lg p-4 bg-gradient-to-br from-sol-dark-card/50 to-black/30 backdrop-blur-md border border-sol-green/5">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
               data={mockData}
@@ -89,16 +89,19 @@ const Dashboard = () => {
               />
               <Tooltip 
                 contentStyle={{
-                  backgroundColor: '#111111',
-                  borderColor: '#27272A',
+                  backgroundColor: 'rgba(17, 17, 17, 0.8)',
+                  backdropFilter: 'blur(12px)',
+                  borderColor: 'rgba(22, 163, 74, 0.2)',
                   borderRadius: '0.5rem',
-                  color: '#E5E5E5'
+                  color: '#E5E5E5',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)'
                 }}
               />
               <Area 
                 type="monotone" 
                 dataKey="value" 
                 stroke="#16A34A" 
+                strokeWidth={2}
                 fillOpacity={1}
                 fill="url(#colorValue)" 
               />

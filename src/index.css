@@ -43,8 +43,11 @@
 
   body {
     @apply bg-sol-dark text-sol-light font-space-grotesk;
-    background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    background-size: 50px 50px;
+    background-image: 
+      radial-gradient(circle at 50% 0%, rgba(22, 163, 74, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(22, 163, 74, 0.05) 0%, transparent 40%),
+      radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 50px 50px;
   }
 
   ::-webkit-scrollbar {
@@ -79,10 +82,19 @@
   }
 
   .highlight-badge {
-    @apply inline-flex items-center px-4 py-1.5 rounded-full bg-sol-dark-card border border-sol-dark-border text-sol-light text-sm;
+    @apply inline-flex items-center px-4 py-1.5 rounded-full bg-gradient-to-r from-sol-dark-card/90 to-sol-dark-card/70 backdrop-blur-md border border-sol-green/20 text-sol-light text-sm shadow-[0_2px_10px_-3px_rgba(22,163,74,0.25)];
   }
 
   .nav-link {
     @apply text-sol-muted hover:text-sol-light transition-colors;
   }
+
+  .glass-card {
+    @apply bg-gradient-to-br from-sol-dark-card/80 to-sol-dark-card/40 backdrop-blur-md border border-sol-green/10 shadow-[0_4px_15px_-3px_rgba(22,163,74,0.15)];
+  }
+
+  .glass-panel {
+    @apply bg-gradient-to-b from-sol-dark-card/95 to-sol-dark-card/80 backdrop-blur-xl border border-sol-green/10 shadow-[0_10px_30px_-5px_rgba(22,163,74,0.1)];
+  }
 }
+
