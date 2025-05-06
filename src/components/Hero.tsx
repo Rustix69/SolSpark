@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Wallet, Send, Loader, Check, Input as InputIcon, MessageSquare, Square, Signature } from 'lucide-react';
+import { Wallet, Send, Loader, Check, FileInput, MessageSquare, Square, Signature } from 'lucide-react';
 import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -365,7 +364,7 @@ const Hero = () => {
                     </>
                   ) : (
                     <>
-                      <InputIcon className="mr-2 h-5 w-5" />
+                      <FileInput className="mr-2 h-5 w-5" />
                       Send Transaction
                     </>
                   )}
