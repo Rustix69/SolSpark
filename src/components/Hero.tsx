@@ -6,7 +6,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Wallet, Send, Loader, Check, FileInput, MessageSquare, Square, Signature } from 'lucide-react';
 import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 
 const Hero = () => {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
@@ -216,221 +216,239 @@ const Hero = () => {
         ) : (
           <div className="w-full relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6 mx-auto">
             {/* SOL Balance and Send Feature */}
-            <div className="glass-card rounded-lg p-6 col-span-1">
-              <div className="mb-4">
-                <h2 className="text-xl font-semibold mb-2 bg-gradient-to-r from-green-200/90 to-white bg-clip-text text-transparent">
+            <Card className="glass-card">
+              <CardHeader>
+                <CardTitle className="text-xl font-semibold mb-2 bg-gradient-to-r from-green-200/90 to-white bg-clip-text text-transparent">
                   SOL Balance
-                </h2>
-                <div className="text-3xl font-bold text-white mb-2">{solBalance} <span className="text-lg text-sol-muted">SOL</span></div>
-                <div className="text-xs text-sol-muted">Network: {network}</div>
-              </div>
-              
-              <form onSubmit={handleSendSOL} className="mt-6">
-                <div className="mb-6">
-                  <Label htmlFor="amount" className="text-sm text-sol-muted mb-2 block">Amount to Send</Label>
-                  <div className="relative">
-                    <Input 
-                      id="amount"
-                      type="number"
-                      placeholder="0.0"
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
-                      className={`bg-sol-dark border-sol-dark-border text-sol-light py-6 px-4 text-xl ${isSuccess ? 'border-sol-green' : ''}`}
-                      disabled={isSuccess}
-                    />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sol-muted">
-                      SOL
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <div className="text-3xl font-bold text-white mb-2">{solBalance} <span className="text-lg text-sol-muted">SOL</span></div>
+                  <div className="text-xs text-sol-muted">Network: {network}</div>
+                </div>
+                
+                <form onSubmit={handleSendSOL} className="space-y-4">
+                  <div>
+                    <Label htmlFor="amount" className="text-sm text-sol-muted mb-2 block">Amount to Send</Label>
+                    <div className="relative">
+                      <Input 
+                        id="amount"
+                        type="number"
+                        placeholder="0.0"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        className={`bg-sol-dark border-sol-dark-border text-sol-light py-6 px-4 text-xl ${isSuccess ? 'border-sol-green' : ''}`}
+                        disabled={isSuccess}
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sol-muted">
+                        SOL
+                      </div>
+                      {isSuccess && (
+                        <div className="absolute right-12 top-1/2 -translate-y-1/2 bg-sol-green text-white rounded-full p-0.5">
+                          <Check className="h-4 w-4" />
+                        </div>
+                      )}
                     </div>
                     {isSuccess && (
-                      <div className="absolute right-12 top-1/2 -translate-y-1/2 bg-sol-green text-white rounded-full p-0.5">
-                        <Check className="h-4 w-4" />
-                      </div>
+                      <p className="text-sol-green text-sm mt-2 flex items-center">
+                        <Check className="h-3 w-3 mr-1" /> Your SOL has been sent successfully!
+                      </p>
                     )}
                   </div>
-                  {isSuccess && (
-                    <p className="text-sol-green text-sm mt-2 flex items-center">
-                      <Check className="h-3 w-3 mr-1" /> Your SOL has been sent successfully!
-                    </p>
-                  )}
-                </div>
 
-                <div className="mb-6">
-                  <Label className="text-sm text-sol-muted mb-2 block">Network</Label>
-                  <RadioGroup 
-                    defaultValue="testnet" 
-                    value={network}
-                    onValueChange={setNetwork}
-                    className="flex justify-between"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="testnet" id="testnet" className="border-sol-dark-border" disabled={isSuccess} />
-                      <Label htmlFor="testnet" className="cursor-pointer">Testnet</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="devnet" id="devnet" className="border-sol-dark-border" disabled={isSuccess} />
-                      <Label htmlFor="devnet" className="cursor-pointer">Devnet</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                <Button 
-                  type="submit" 
-                  disabled={isLoading || isSuccess} 
-                  className={`w-full py-6 text-lg border-0 shadow-[0_4px_20px_-4px_rgba(22,163,74,0.5)] ${
-                    isSuccess 
-                      ? 'bg-gradient-to-r from-sol-green to-sol-green/80 hover:from-sol-green hover:to-sol-green'
-                      : 'bg-gradient-to-r from-sol-green to-sol-green/80 hover:from-sol-green-hover hover:to-sol-green'
-                  }`}
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader className="mr-2 h-5 w-5 animate-spin" />
-                      Processing...
-                    </>
-                  ) : isSuccess ? (
-                    <>
-                      <Check className="mr-2 h-5 w-5" />
-                      Send
-                    </>
-                  ) : (
-                    <>
-                      <Send className="mr-2 h-5 w-5" />
-                      Send
-                    </>
-                  )}
-                </Button>
-              </form>
-            </div>
+                  <div>
+                    <Label className="text-sm text-sol-muted mb-2 block">Network</Label>
+                    <RadioGroup 
+                      defaultValue="testnet" 
+                      value={network}
+                      onValueChange={setNetwork}
+                      className="flex justify-between"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="testnet" id="testnet" className="border-sol-dark-border" disabled={isSuccess} />
+                        <Label htmlFor="testnet" className="cursor-pointer">Testnet</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="devnet" id="devnet" className="border-sol-dark-border" disabled={isSuccess} />
+                        <Label htmlFor="devnet" className="cursor-pointer">Devnet</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                  
+                  <CardFooter className="px-0 pb-0 pt-2">
+                    <Button 
+                      type="submit" 
+                      disabled={isLoading || isSuccess} 
+                      className={`w-full py-6 text-lg border-0 shadow-[0_4px_20px_-4px_rgba(22,163,74,0.5)] ${
+                        isSuccess 
+                          ? 'bg-gradient-to-r from-sol-green to-sol-green/80 hover:from-sol-green hover:to-sol-green'
+                          : 'bg-gradient-to-r from-sol-green to-sol-green/80 hover:from-sol-green-hover hover:to-sol-green'
+                      }`}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader className="mr-2 h-5 w-5 animate-spin" />
+                          Processing...
+                        </>
+                      ) : isSuccess ? (
+                        <>
+                          <Check className="mr-2 h-5 w-5" />
+                          Send
+                        </>
+                      ) : (
+                        <>
+                          <Send className="mr-2 h-5 w-5" />
+                          Send
+                        </>
+                      )}
+                    </Button>
+                  </CardFooter>
+                </form>
+              </CardContent>
+            </Card>
             
             {/* Send to Address Feature */}
-            <div className="glass-card rounded-lg p-6 col-span-1">
-              <h2 className="text-xl font-semibold mb-5 bg-gradient-to-r from-green-200/90 to-white bg-clip-text text-transparent flex items-center">
-                <Send className="mr-2 h-5 w-5" />
-                Send to Address
-              </h2>
+            <Card className="glass-card">
+              <CardHeader>
+                <CardTitle className="text-xl font-semibold bg-gradient-to-r from-green-200/90 to-white bg-clip-text text-transparent flex items-center">
+                  <Send className="mr-2 h-5 w-5" />
+                  Send to Address
+                </CardTitle>
+              </CardHeader>
               
-              <form onSubmit={handleSendToAddress}>
-                <div className="mb-4">
-                  <Label htmlFor="recipient" className="text-sm text-sol-muted mb-2 block">Recipient Address</Label>
-                  <div className="relative">
-                    <Input 
-                      id="recipient"
-                      placeholder="Enter wallet address"
-                      value={recipientAddress}
-                      onChange={(e) => setRecipientAddress(e.target.value)}
-                      className={`bg-sol-dark border-sol-dark-border text-sol-light py-3 px-4 ${isSendSuccess ? 'border-sol-green' : ''}`}
-                      disabled={isSendSuccess}
-                    />
-                    {isSendSuccess && (
-                      <div className="absolute right-2 top-1/2 -translate-y-1/2 bg-sol-green text-white rounded-full p-0.5">
-                        <Check className="h-4 w-4" />
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="mb-4">
-                  <Label htmlFor="send-amount" className="text-sm text-sol-muted mb-2 block">Amount</Label>
-                  <div className="relative">
-                    <Input 
-                      id="send-amount"
-                      type="number"
-                      placeholder="0.0"
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
-                      className="bg-sol-dark border-sol-dark-border text-sol-light py-3 px-4"
-                      disabled={isSendSuccess}
-                    />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sol-muted">
-                      SOL
+              <CardContent className="space-y-4">
+                <form onSubmit={handleSendToAddress} className="space-y-4">
+                  <div>
+                    <Label htmlFor="recipient" className="text-sm text-sol-muted mb-2 block">Recipient Address</Label>
+                    <div className="relative">
+                      <Input 
+                        id="recipient"
+                        placeholder="Enter wallet address"
+                        value={recipientAddress}
+                        onChange={(e) => setRecipientAddress(e.target.value)}
+                        className={`bg-sol-dark border-sol-dark-border text-sol-light py-3 px-4 ${isSendSuccess ? 'border-sol-green' : ''}`}
+                        disabled={isSendSuccess}
+                      />
+                      {isSendSuccess && (
+                        <div className="absolute right-2 top-1/2 -translate-y-1/2 bg-sol-green text-white rounded-full p-0.5">
+                          <Check className="h-4 w-4" />
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
-                
-                <Button 
-                  type="submit" 
-                  disabled={isSending || isSendSuccess || !recipientAddress} 
-                  className="w-full bg-gradient-to-r from-sol-green to-sol-green/80 hover:from-sol-green-hover hover:to-sol-green border-0 shadow-[0_4px_20px_-4px_rgba(22,163,74,0.5)]"
-                >
-                  {isSending ? (
-                    <>
-                      <Loader className="mr-2 h-5 w-5 animate-spin" />
-                      Sending...
-                    </>
-                  ) : isSendSuccess ? (
-                    <>
-                      <Check className="mr-2 h-5 w-5" />
-                      Sent Successfully
-                    </>
-                  ) : (
-                    <>
-                      <FileInput className="mr-2 h-5 w-5" />
-                      Send Transaction
-                    </>
+                  
+                  <div>
+                    <Label htmlFor="send-amount" className="text-sm text-sol-muted mb-2 block">Amount</Label>
+                    <div className="relative">
+                      <Input 
+                        id="send-amount"
+                        type="number"
+                        placeholder="0.0"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        className="bg-sol-dark border-sol-dark-border text-sol-light py-3 px-4"
+                        disabled={isSendSuccess}
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sol-muted">
+                        SOL
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <CardFooter className="px-0 pb-0 pt-2">
+                    <Button 
+                      type="submit" 
+                      disabled={isSending || isSendSuccess || !recipientAddress} 
+                      className="w-full bg-gradient-to-r from-sol-green to-sol-green/80 hover:from-sol-green-hover hover:to-sol-green border-0 shadow-[0_4px_20px_-4px_rgba(22,163,74,0.5)]"
+                    >
+                      {isSending ? (
+                        <>
+                          <Loader className="mr-2 h-5 w-5 animate-spin" />
+                          Sending...
+                        </>
+                      ) : isSendSuccess ? (
+                        <>
+                          <Check className="mr-2 h-5 w-5" />
+                          Sent Successfully
+                        </>
+                      ) : (
+                        <>
+                          <FileInput className="mr-2 h-5 w-5" />
+                          Send Transaction
+                        </>
+                      )}
+                    </Button>
+                  </CardFooter>
+                  
+                  {isSendSuccess && (
+                    <p className="text-sol-green text-sm mt-2 flex items-center">
+                      <Check className="h-3 w-3 mr-1" /> Transaction sent successfully!
+                    </p>
                   )}
-                </Button>
-                
-                {isSendSuccess && (
-                  <p className="text-sol-green text-sm mt-2 flex items-center">
-                    <Check className="h-3 w-3 mr-1" /> Transaction sent successfully!
-                  </p>
-                )}
-              </form>
-            </div>
+                </form>
+              </CardContent>
+            </Card>
             
             {/* Sign Message Feature */}
-            <div className="glass-card rounded-lg p-6 col-span-1">
-              <h2 className="text-xl font-semibold mb-5 bg-gradient-to-r from-green-200/90 to-white bg-clip-text text-transparent flex items-center">
-                <MessageSquare className="mr-2 h-5 w-5" />
-                Sign Message
-              </h2>
+            <Card className="glass-card">
+              <CardHeader>
+                <CardTitle className="text-xl font-semibold bg-gradient-to-r from-green-200/90 to-white bg-clip-text text-transparent flex items-center">
+                  <MessageSquare className="mr-2 h-5 w-5" />
+                  Sign Message
+                </CardTitle>
+              </CardHeader>
               
-              <form onSubmit={handleSignMessage}>
-                <div className="mb-4">
-                  <Label htmlFor="message" className="text-sm text-sol-muted mb-2 block">Message</Label>
-                  <Textarea 
-                    id="message"
-                    placeholder="Enter message to sign"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    className={`bg-sol-dark border-sol-dark-border text-sol-light min-h-[80px] ${isSignSuccess ? 'border-sol-green' : ''}`}
-                    disabled={isSignSuccess}
-                  />
-                </div>
-                
-                <Button 
-                  type="submit" 
-                  disabled={isSigning || isSignSuccess || !message} 
-                  className="w-full bg-gradient-to-r from-sol-green to-sol-green/80 hover:from-sol-green-hover hover:to-sol-green border-0 shadow-[0_4px_20px_-4px_rgba(22,163,74,0.5)]"
-                >
-                  {isSigning ? (
-                    <>
-                      <Loader className="mr-2 h-5 w-5 animate-spin" />
-                      Signing...
-                    </>
-                  ) : isSignSuccess ? (
-                    <>
-                      <Check className="mr-2 h-5 w-5" />
-                      Signed
-                    </>
-                  ) : (
-                    <>
-                      <Signature className="mr-2 h-5 w-5" />
-                      Sign Message
-                    </>
-                  )}
-                </Button>
-                
-                {isSignSuccess && signature && (
-                  <div className="mt-4">
-                    <Label className="text-sm text-sol-muted mb-2 block">Signature</Label>
-                    <div className="bg-sol-dark border border-sol-green/30 rounded-md p-3 text-xs text-sol-muted overflow-x-auto">
-                      <code>{signature}</code>
-                    </div>
+              <CardContent className="space-y-4">
+                <form onSubmit={handleSignMessage} className="space-y-4">
+                  <div>
+                    <Label htmlFor="message" className="text-sm text-sol-muted mb-2 block">Message</Label>
+                    <Textarea 
+                      id="message"
+                      placeholder="Enter message to sign"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      className={`bg-sol-dark border-sol-dark-border text-sol-light min-h-[80px] ${isSignSuccess ? 'border-sol-green' : ''}`}
+                      disabled={isSignSuccess}
+                    />
                   </div>
-                )}
-              </form>
-            </div>
+                  
+                  <CardFooter className="px-0 pb-0 pt-2">
+                    <Button 
+                      type="submit" 
+                      disabled={isSigning || isSignSuccess || !message} 
+                      className="w-full bg-gradient-to-r from-sol-green to-sol-green/80 hover:from-sol-green-hover hover:to-sol-green border-0 shadow-[0_4px_20px_-4px_rgba(22,163,74,0.5)]"
+                    >
+                      {isSigning ? (
+                        <>
+                          <Loader className="mr-2 h-5 w-5 animate-spin" />
+                          Signing...
+                        </>
+                      ) : isSignSuccess ? (
+                        <>
+                          <Check className="mr-2 h-5 w-5" />
+                          Signed
+                        </>
+                      ) : (
+                        <>
+                          <Signature className="mr-2 h-5 w-5" />
+                          Sign Message
+                        </>
+                      )}
+                    </Button>
+                  </CardFooter>
+                  
+                  {isSignSuccess && signature && (
+                    <div className="mt-4">
+                      <Label className="text-sm text-sol-muted mb-2 block">Signature</Label>
+                      <div className="bg-sol-dark border border-sol-green/30 rounded-md p-3 text-xs text-sol-muted overflow-x-auto">
+                        <code>{signature}</code>
+                      </div>
+                    </div>
+                  )}
+                </form>
+              </CardContent>
+            </Card>
           </div>
         )}
       </div>
