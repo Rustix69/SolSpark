@@ -19,10 +19,11 @@ const Hero = () => {
   const wallet = useWallet();
 
   // State for the amount to send
-  const [amount, setAmount] = useState('');
+  const [airdropAmt, setAirdropAmt] = useState('');
   const [network, setNetwork] = useState('testnet');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [airdropError, setAirdropError] = useState('');
   const starsContainerRef = useRef<HTMLDivElement>(null);
   
   // New states for additional functionality
@@ -34,6 +35,7 @@ const Hero = () => {
   const [isSigning, setIsSigning] = useState(false);
   const [isSignSuccess, setIsSignSuccess] = useState(false);
   const [signature, setSignature] = useState('');
+  const [txnAmount, setTxnAmount] = useState('');
 
   const handleSolBalance = async () => {
     if (!connected) return;
@@ -43,38 +45,39 @@ const Hero = () => {
 
   useEffect(() => {
     handleSolBalance();
-  }, [connected, wallet.publicKey]);
+  }, [connected, wallet.publicKey, solBalance, airdropAmt]);
 
-  const handleSendSOL = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!amount || parseFloat(amount) <= 0) {
-      toast.error('Please enter a valid amount');
-      return;
-    }
-
-    setIsLoading(true);
-    setIsSuccess(false);
-
-    // Simulating transaction
-    setTimeout(() => {
-      setIsLoading(false);
+  const requestAirdrop = async() => {
+    if (!connected) return;
+    try {
+      setIsLoading(true);
+      setAirdropError('');
+      const amountToAirdrop = parseFloat(airdropAmt) * LAMPORTS_PER_SOL;
+      const signature = await connection.requestAirdrop(wallet.publicKey, amountToAirdrop);
+      
+      // Wait for confirmation
+      await connection.confirmTransaction(signature);
+      
       setIsSuccess(true);
-      toast.success(`${amount} SOL sent successfully on ${network}`);
-      
-      // Update the balance
-      setSolBalance((prevBalance) => {
-        const newBalance = Math.max(0, parseFloat(prevBalance) - parseFloat(amount)).toFixed(2);
-        return newBalance;
-      });
-      
-      // Reset success state after 3 seconds
+      toast.success(`${airdropAmt} SOL airdropped successfully`);
       setTimeout(() => {
         setIsSuccess(false);
-        setAmount('');
+        setAirdropAmt('');
       }, 3000);
-    }, 2000);
-  };
+    } catch (error: any) {
+      console.error('Error requesting airdrop:', error);
+      if (error.message?.includes('429')) {
+        setAirdropError('Rate limit exceeded. Please try again later.');
+        toast.error('Rate limit exceeded. Please try again later.');
+      } else {
+        setAirdropError('Failed to request airdrop. Please try again.');
+        toast.error('Failed to request airdrop. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   
   const handleSendToAddress = (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,7 +87,7 @@ const Hero = () => {
       return;
     }
     
-    if (!amount || parseFloat(amount) <= 0) {
+    if (!txnAmount || parseFloat(txnAmount) <= 0) {
       toast.error('Please enter a valid amount');
       return;
     }
@@ -95,11 +98,11 @@ const Hero = () => {
     setTimeout(() => {
       setIsSending(false);
       setIsSendSuccess(true);
-      toast.success(`${amount} SOL sent to ${recipientAddress.slice(0, 8)}...${recipientAddress.slice(-4)}`);
+      toast.success(`${txnAmount} SOL sent to ${recipientAddress.slice(0, 8)}...${recipientAddress.slice(-4)}`);
       
       // Update the balance
       setSolBalance((prevBalance) => {
-        const newBalance = Math.max(0, parseFloat(prevBalance) - parseFloat(amount)).toFixed(2);
+        const newBalance = Math.max(0, parseFloat(prevBalance) - parseFloat(txnAmount)).toFixed(2);
         return newBalance;
       });
       
@@ -107,6 +110,7 @@ const Hero = () => {
       setTimeout(() => {
         setIsSendSuccess(false);
         setRecipientAddress('');
+        setTxnAmount('');
       }, 3000);
     }, 2000);
   };
@@ -212,18 +216,18 @@ const Hero = () => {
                   <div className="text-xs text-sol-muted">Network: {network}</div>
                 </div>
                 
-                <form onSubmit={handleSendSOL} className="space-y-4">
+                <form onSubmit={requestAirdrop} className="space-y-4">
                   <div>
-                    <Label htmlFor="amount" className="text-sm text-sol-muted mb-2 block">Amount to Send</Label>
+                    <Label htmlFor="amount" className="text-sm text-sol-muted mb-2 block">Amount to Airdrop</Label>
                     <div className="relative">
                       <Input 
                         id="amount"
                         type="number"
                         placeholder="0.0"
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                        className={`bg-sol-dark border-sol-dark-border text-sol-light py-6 px-4 text-xl ${isSuccess ? 'border-sol-green' : ''}`}
-                        disabled={isSuccess}
+                        value={airdropAmt}
+                        onChange={(e) => setAirdropAmt(e.target.value)}
+                        className={`bg-sol-dark border-sol-dark-border text-sol-light py-6 px-4 text-xl ${isSuccess ? 'border-sol-green' : ''} ${airdropError ? 'border-red-500' : ''}`}
+                        disabled={isLoading || isSuccess}
                       />
                       <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sol-muted">
                         SOL
@@ -234,6 +238,9 @@ const Hero = () => {
                         </div>
                       )}
                     </div>
+                    {airdropError && (
+                      <p className="text-red-500 text-sm mt-2">{airdropError}</p>
+                    )}
                     {isSuccess && (
                       <p className="text-sol-green text-sm mt-2 flex items-center">
                         <Check className="h-3 w-3 mr-1" /> Your SOL has been sent successfully!
@@ -329,8 +336,8 @@ const Hero = () => {
                         id="send-amount"
                         type="number"
                         placeholder="0.0"
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
+                        value={txnAmount}
+                        onChange={(e) => setTxnAmount(e.target.value)}
                         className="bg-sol-dark border-sol-dark-border text-sol-light py-3 px-4"
                         disabled={isSendSuccess}
                       />
