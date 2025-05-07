@@ -11,6 +11,10 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useConnection } from '@solana/wallet-adapter-react';
 import { LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
+import { ed25519 } from "@noble/curves/ed25519";
+
+
+
 const Hero = () => {
 
   // Wallet connection state
@@ -115,8 +119,76 @@ const Hero = () => {
     }
   };
 
-  const handleSignMessage = async () => {
-    if (!connected) return;
+  const handleSignMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!connected) {
+      toast.error("Please connect your wallet");
+      return;
+    }
+    
+    if (!message.trim()) {
+      toast.error('Please enter a message to sign');
+      return;
+    }
+    
+    try {
+      setIsSigning(true);
+      setIsSignSuccess(false);
+      
+      // Convert message to encoded bytes
+      const encodedMessage = new TextEncoder().encode(message);
+      
+      // Request signature from wallet
+      const signatureBytes = await wallet.signMessage?.(encodedMessage);
+      
+      if (!signatureBytes) {
+        throw new Error('Signature could not be generated');
+      }
+      
+      // Log the Uint8Array signature
+      console.log('Signature Uint8Array:', signatureBytes);
+      
+      // Verify the signature cryptographically
+      const isValid = ed25519.verify(
+        signatureBytes, 
+        encodedMessage, 
+        wallet.publicKey?.toBytes() || new Uint8Array()
+      );
+      
+      if (!isValid) {
+        throw new Error('Signature verification failed');
+      }
+      // Set success states
+      setIsSignSuccess(true);
+      setIsSigning(false);
+      
+      toast.success('Message signed successfully');
+      
+      // Reset after 3 seconds
+      setTimeout(() => {
+        setIsSignSuccess(false);
+        setMessage('');
+      }, 3000);
+      
+    } catch (error: any) {
+      console.error('Error signing message:', error);
+      
+      // Handle specific error cases
+      if (error.message?.includes('429')) {
+        toast.error('Rate limit exceeded. Please try again later.');
+      } else if (error.message === 'Signature could not be generated') {
+        toast.error('Failed to generate signature. Please try again.');
+      } else if (error.message === 'Signature verification failed') {
+        toast.error('Signature verification failed. Please try again.');
+      } else {
+        toast.error('Failed to sign message. Please try again.');
+      }
+      
+      // Reset states on error
+      setIsSigning(false);
+      setIsSignSuccess(false);
+    }
   };
 
   // Stars background animation
@@ -393,7 +465,7 @@ const Hero = () => {
                     />
                   </div>
 
-                  <div className="mt-auto">
+                  <div className="pt-24">
                     <CardFooter className="px-0 pb-0 pt-2">
                       <Button
                         type="submit"
@@ -419,15 +491,6 @@ const Hero = () => {
                       </Button>
                     </CardFooter>
                   </div>
-
-                  {isSignSuccess && signature && (
-                    <div className="mt-4">
-                      <Label className="text-sm text-sol-muted mb-2 block">Signature</Label>
-                      <div className="bg-sol-dark border border-sol-green/30 rounded-md p-3 text-xs text-sol-muted overflow-x-auto">
-                        <code>{signature}</code>
-                      </div>
-                    </div>
-                  )}
                 </form>
               </CardContent>
             </Card>
