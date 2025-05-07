@@ -1,10 +1,11 @@
-
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Wallet } from 'lucide-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { Loader, Wallet } from 'lucide-react';
 
 const Navbar = () => {
-  const [isConnected, setIsConnected] = useState(false);
+  const { connected } = useWallet();
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 py-4 px-6 md:px-12 bg-gradient-to-b from-sol-dark to-transparent">
@@ -12,23 +13,23 @@ const Navbar = () => {
         <a href="/" className="text-xl font-bold text-sol-light">
           SolSpark
         </a>
-        
-        <div className="hidden md:flex items-center space-x-8">
-          <a href="#pricing" className="nav-link">Pricing</a>
-          <a href="#resources" className="nav-link">Resources</a>
-          <a href="#community" className="nav-link">Community</a>
-          <a href="#download" className="nav-link">Download</a>
-        </div>
 
         <div className="flex items-center gap-3">
-          <a href="#signin" className="nav-link hidden md:inline-block">Sign In</a>
-          <Button 
-            onClick={() => setIsConnected(!isConnected)}
-            className={`gap-2 px-5 transition-all ${isConnected ? 'bg-sol-dark-card border border-sol-green/30 hover:bg-sol-dark-card/80' : 'bg-sol-green hover:bg-sol-green-hover'}`}
-          >
-            <Wallet className="w-4 h-4" />
-            {isConnected ? 'Connected' : 'Connect Wallet'}
-          </Button>
+          <div className="wallet-adapter-button-trigger">
+            <WalletMultiButton className="w-full py-6 text-lg bg-gradient-to-r from-sol-green to-sol-green/80 hover:from-sol-green-hover hover:to-sol-green border-0 shadow-[0_4px_20px_-4px_rgba(22,163,74,0.5)]">
+              {isLoading ? (
+                <>
+                  <Loader className="mr-2 h-5 w-5 animate-spin" />
+                  Connecting...
+                </>
+              ) : (
+                <>
+                  <Wallet className="mr-2 h-5 w-5" />
+                  {connected ? 'Connected' : 'Connect Wallet'}
+                </>
+              )}
+            </WalletMultiButton>
+          </div>
         </div>
       </div>
     </nav>

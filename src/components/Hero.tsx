@@ -7,9 +7,18 @@ import { Wallet, Send, Loader, Check, FileInput, MessageSquare, Square, Signatur
 import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-
+import { useWallet } from '@solana/wallet-adapter-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { useConnection } from '@solana/wallet-adapter-react';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 const Hero = () => {
-  const [isWalletConnected, setIsWalletConnected] = useState(false);
+
+  // Wallet connection state
+  const {connection} = useConnection();
+  const { connected } = useWallet();
+  const wallet = useWallet();
+
+  // State for the amount to send
   const [amount, setAmount] = useState('');
   const [network, setNetwork] = useState('testnet');
   const [isLoading, setIsLoading] = useState(false);
@@ -26,17 +35,15 @@ const Hero = () => {
   const [isSignSuccess, setIsSignSuccess] = useState(false);
   const [signature, setSignature] = useState('');
 
-  const connectWallet = () => {
-    setIsLoading(true);
-    
-    // Simulating wallet connection
-    setTimeout(() => {
-      setIsWalletConnected(true);
-      setIsLoading(false);
-      setSolBalance((Math.random() * 10).toFixed(2)); // Set a random balance
-      toast.success('Wallet connected successfully');
-    }, 1500);
-  };
+  const handleSolBalance = async () => {
+    if (!connected) return;
+    const balance = await connection.getBalance(wallet.publicKey);
+    setSolBalance(String(balance / LAMPORTS_PER_SOL));
+  }
+
+  useEffect(() => {
+    handleSolBalance();
+  }, [connected, wallet.publicKey]);
 
   const handleSendSOL = (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,7 +110,7 @@ const Hero = () => {
       }, 3000);
     }, 2000);
   };
-  
+
   const handleSignMessage = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -114,20 +121,13 @@ const Hero = () => {
     
     setIsSigning(true);
     
-    // Simulate message signing
+    // Simulate signing
     setTimeout(() => {
       setIsSigning(false);
       setIsSignSuccess(true);
-      // Generate a fake signature
-      const fakeSignature = Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('');
-      setSignature(fakeSignature);
+      setSignature('4Z8cWfBKkFBLAwXNb5rxyUj4BPzMs1JYvWpz9zX9N1Jz');
       toast.success('Message signed successfully');
-      
-      // Reset after 5 seconds
-      setTimeout(() => {
-        setIsSignSuccess(false);
-      }, 5000);
-    }, 2000);
+    }, 1500);
   };
 
   useEffect(() => {
@@ -173,7 +173,7 @@ const Hero = () => {
       {/* Stars background */}
       <div ref={starsContainerRef} className="stars-container"></div>
       
-      <div className="hero-content w-full max-w-6xl">
+      <div className="hero-content text-center w-full max-w-6xl">
         <div className="highlight-badge mb-6 animate-pulse-subtle">
           <span className="mr-2">✨</span>
           NEW: Now available on Devnet and Testnet
@@ -193,25 +193,9 @@ const Hero = () => {
           Connect your wallet and securely drop SOL tokens using Testnet or Devnet.
         </p>
 
-        {!isWalletConnected ? (
+        {!connected ? (
           <div className="w-full max-w-md mx-auto relative z-10">
-            <Button 
-              onClick={connectWallet} 
-              disabled={isLoading}
-              className="w-full py-6 text-lg bg-gradient-to-r from-sol-green to-sol-green/80 hover:from-sol-green-hover hover:to-sol-green border-0 shadow-[0_4px_20px_-4px_rgba(22,163,74,0.5)]"
-            >
-              {isLoading ? (
-                <>
-                  <Loader className="mr-2 h-5 w-5 animate-spin" />
-                  Connecting...
-                </>
-              ) : (
-                <>
-                  <Wallet className="mr-2 h-5 w-5" />
-                  Connect Wallet
-                </>
-              )}
-            </Button>
+            <WalletMultiButton />
           </div>
         ) : (
           <div className="w-full relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6 mx-auto">
